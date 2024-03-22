@@ -1,10 +1,10 @@
-import numeral from 'numeral';
-import 'numeral/locales/chs';
-import 'numeral/locales/es';
-import 'numeral/locales/fr';
-import 'numeral/locales/it';
-import 'numeral/locales/pl';
-import 'numeral/locales/ru';
+// import numeral from 'numeral';
+// import 'numeral/locales/chs';
+// import 'numeral/locales/es';
+// import 'numeral/locales/fr';
+// import 'numeral/locales/it';
+// import 'numeral/locales/pl';
+// import 'numeral/locales/ru';
 import { KupComponent } from '../../types/GenericTypes';
 import { KupDebugCategory } from '../kup-debug/kup-debug-declarations';
 import { KupDom } from '../kup-manager/kup-manager-declarations';
@@ -16,6 +16,19 @@ import {
 } from './kup-math-declarations';
 import { customFormula, normalDistributionFormula } from './kup-math-helper';
 import { getRegExpFromString } from '../../utils/utils';
+import { numberStringToFormattedString as numberStringToFormattedStringFunction } from './kup-math-utility';
+import { numberToFormattedString as numberToFormattedStringFunction } from './kup-math-utility';
+import { numberify as numberifyFunction } from './kup-math-utility';
+import { numberifySafe as numberifySafeFunction } from './kup-math-utility';
+import { decimalSeparator as decimalSeparatorFunction } from './kup-math-utility';
+import { groupSeparator as groupSeparatorFunction } from './kup-math-utility';
+import { countDecimals as countDecimalsFunction } from './kup-math-utility';
+import { createFormatPattern as createFormatPatternFunction } from './kup-math-utility';
+import { getNumericValueSuffix as getNumericValueSuffixFunction } from './kup-math-utility';
+import { mathFormat as formatFunction } from './kup-math-utility';
+import { formattedStringToNumberString as formattedStringToNumberStringFunction } from './kup-math-utility';
+import { isStringNumber as isStringNumberFunction } from './kup-math-utility';
+import { mathIsNumber as isNumberFunction } from './kup-math-utility';
 
 const dom: KupDom = document.documentElement as KupDom;
 
@@ -47,7 +60,7 @@ export class KupMath {
             });
         },
     };
-    numeral: typeof numeral;
+    // numeral: typeof numeral;
 
     /**
      * Initializes KupMath.
@@ -55,8 +68,8 @@ export class KupMath {
     constructor(locale?: KupMathLocales) {
         this.locale = locale ? locale : KupMathLocales.en;
         this.managedComponents = new Set();
-        this.numeral = numeral;
-        this.numeral.locale(this.locale);
+        // this.numeral = numeral;
+        // this.numeral.locale(this.locale);
     }
     /**
      * Sets the locale of the numeral instance. The locales available must be tied to the KupDates locales.
@@ -72,7 +85,7 @@ export class KupMath {
             );
         }
         this.locale = locale;
-        this.numeral.locale(locale);
+        // this.numeral.locale(locale);
         this.managedComponents.forEach(function (comp) {
             if (comp.isConnected) {
                 comp.refresh();
@@ -134,17 +147,7 @@ export class KupMath {
         format?: string,
         inputIsLocalized?: boolean
     ): string {
-        const n = this.numberify(input, inputIsLocalized);
-        if (!format) {
-            const positiveN = Math.abs(n);
-            const decimals = positiveN - Math.floor(positiveN);
-            if (decimals) {
-                format = '0,0.00';
-            } else {
-                format = '0,0';
-            }
-        }
-        return this.numeral(n).format(format);
+        return formatFunction(input, this.locale, format, inputIsLocalized);
     }
     /**
      * Create the pattern string for format a number
@@ -153,17 +156,7 @@ export class KupMath {
      * @returns {string} - formatter pattern
      */
     createFormatPattern(thousandPoint?: boolean, decimals?: number): string {
-        var format = '0';
-        if (thousandPoint) {
-            format += ',0';
-        }
-        if (decimals && decimals > 0) {
-            format += '.';
-            for (let i = 0; i < decimals; i++) {
-                format += '0';
-            }
-        }
-        return format;
+        return createFormatPatternFunction(thousandPoint, decimals);
     }
 
     /**
@@ -171,10 +164,7 @@ export class KupMath {
      * @returns {string} current decimal separator, by locale
      */
     decimalSeparator(): string {
-        const numberWithGroupAndDecimalSeparator = 1000.1;
-        return Intl.NumberFormat(this.locale)
-            .formatToParts(numberWithGroupAndDecimalSeparator)
-            .find((part) => part.type === 'decimal').value;
+        return decimalSeparatorFunction(this.locale);
     }
 
     /**
@@ -182,10 +172,7 @@ export class KupMath {
      * @returns {string} current group separator, by locale
      */
     groupSeparator(): string {
-        const numberWithGroupAndDecimalSeparator = 1000.1;
-        return Intl.NumberFormat(this.locale)
-            .formatToParts(numberWithGroupAndDecimalSeparator)
-            .find((part) => part.type === 'group').value;
+        return groupSeparatorFunction(this.locale);
     }
 
     /**
@@ -253,32 +240,13 @@ export class KupMath {
         type?: string,
         decFmt?: string
     ): number {
-        if (typeof input != 'number') {
-            if (type) {
-                let suffix = this.getNumericValueSuffix(type);
-                if (suffix != '') {
-                    input = input.replace(getRegExpFromString(suffix, 'g'), '');
-                }
-            }
-            if (!decFmt) {
-                decFmt = inputIsLocalized ? this.decimalSeparator() : '.';
-            }
-            const groupSeparator = decFmt == '.' ? ',' : '.';
-            input = input.replace(getRegExpFromString(groupSeparator, 'g'), '');
-            if (decFmt != '.') {
-                input = input.replace(getRegExpFromString(decFmt, 'g'), '.');
-            }
-        }
-        let n = NaN;
-
-        const locale = this.numeral.locale();
-        this.numeral.locale(KupMathLocales.en);
-        n = this.numeral(input).value();
-        this.numeral.locale(locale);
-        if (n === null) {
-            return NaN;
-        }
-        return n;
+        return numberifyFunction(
+            input,
+            this.locale,
+            inputIsLocalized,
+            type,
+            decFmt
+        );
     }
     /**
      * Returns a number from a non-specified input type between string, number, or String.
@@ -294,10 +262,13 @@ export class KupMath {
         type?: string,
         decFmt?: string
     ): number {
-        if (!input || input == null || input.trim() == '') {
-            input = '0';
-        }
-        return this.numberify(input, inputIsLocalized, type, decFmt);
+        return numberifySafeFunction(
+            input,
+            this.locale,
+            inputIsLocalized,
+            type,
+            decFmt
+        );
     }
 
     /**
@@ -306,8 +277,7 @@ export class KupMath {
      * @returns {boolean} if input value is valid number
      */
     isNumber(value: any): boolean {
-        //return typeof value === 'number';
-        return !isNaN(value);
+        return isNumberFunction(value);
     }
 
     /**
@@ -317,16 +287,7 @@ export class KupMath {
      * @returns {boolean} true if number string in input is a valid number
      */
     isStringNumber(value: string, type: string): boolean {
-        if (value == null || value.trim() == '') {
-            return false;
-        }
-
-        let tmpStr = this.formattedStringToNumberString(value, type);
-
-        if (this.isNumber(tmpStr)) {
-            return true;
-        }
-        return false;
+        return isStringNumberFunction(value, type, this.locale);
     }
 
     /**
@@ -341,53 +302,12 @@ export class KupMath {
         type: string,
         decSeparator?: string
     ): string {
-        return numberStringToNumberString(input, type, decSeparator, this);
-
-        function numberStringToNumberString(
-            input: string,
-            type: string,
-            decFmt: string,
-            kupMath: KupMath
-        ): string {
-            if (!input || input == null || input.trim() == '') {
-                return '';
-            }
-            let unf: number = kupMath.numberifySafe(
-                input,
-                !decFmt || decFmt != '.',
-                type,
-                decFmt
-            );
-            if (unf == null || isNaN(unf)) {
-                return input;
-            }
-
-            return numberToString(unf, -1, 'en-US', kupMath);
-        }
-
-        function numberToString(
-            input: number,
-            decimals: number,
-            locale: string,
-            kupMath: KupMath
-        ): string {
-            if (input == null) {
-                input = 0;
-            }
-            if (decimals == null || decimals == -1) {
-                decimals = kupMath.countDecimals(input);
-            }
-            let n: Number = Number(input);
-            let f: Intl.NumberFormatOptions =
-                decimals > -1
-                    ? {
-                          minimumFractionDigits: decimals,
-                          maximumFractionDigits: decimals,
-                          useGrouping: false,
-                      }
-                    : { useGrouping: false };
-            return n.toLocaleString(locale, f);
-        }
+        return formattedStringToNumberStringFunction(
+            input,
+            type,
+            this.locale,
+            decSeparator
+        );
     }
     /**
      * Gets the number of decimals for current number
@@ -395,13 +315,7 @@ export class KupMath {
      * @returns {number} the number of decimals
      */
     countDecimals(value: number): number {
-        if (Math.floor(value) === value) return 0;
-        let stringValue = value.toString().split('.')[1];
-        if (stringValue) {
-            return stringValue.length ?? 0;
-        } else {
-            return 0;
-        }
+        return countDecimalsFunction(value);
     }
 
     /**
@@ -410,18 +324,7 @@ export class KupMath {
      * @returns {string} suffix for number, by type
      **/
     getNumericValueSuffix(type: string): string {
-        type = type.toUpperCase();
-        let nstr = '';
-        if (type == 'P') {
-            nstr = ' %';
-        } else if (type == 'VE') {
-            nstr = ' €';
-        } else if (type == 'VL') {
-            nstr = ' £';
-        } else if (type == 'VV') {
-            nstr = ' $';
-        }
-        return nstr;
+        return getNumericValueSuffixFunction(type);
     }
 
     /**
@@ -436,15 +339,12 @@ export class KupMath {
         decimals: number,
         type: string
     ): string {
-        if (input == null || isNaN(input)) {
-            return '';
-        }
-        if (decimals == null || decimals == -1) {
-            decimals = this.countDecimals(input);
-        }
-        let nstr = this.format(input, this.createFormatPattern(true, decimals));
-        nstr = nstr + this.getNumericValueSuffix(type);
-        return nstr;
+        return numberToFormattedStringFunction(
+            input,
+            decimals,
+            type,
+            this.locale
+        );
     }
 
     /**
@@ -461,30 +361,13 @@ export class KupMath {
         type: string,
         decSeparator?: string
     ): string {
-        let value = this.numberToFormattedString(
-            this.numberifySafe(input),
+        return numberStringToFormattedStringFunction(
+            input,
             decimals,
-            type
-        );
-
-        if (!decSeparator) {
-            return value;
-        }
-        const browserDecSeparator = this.decimalSeparator();
-        if (browserDecSeparator == decSeparator) {
-            return value;
-        }
-        const browserGroupSeparator = this.groupSeparator();
-        value = value.replace(
-            getRegExpFromString(browserGroupSeparator, 'g'),
-            ''
-        );
-        value = value.replace(
-            getRegExpFromString(browserDecSeparator, 'g'),
+            type,
+            this.locale,
             decSeparator
         );
-
-        return value;
     }
     /**
      * Registers a KupComponent in KupMath, in order to be properly handled whenever the locale changes.

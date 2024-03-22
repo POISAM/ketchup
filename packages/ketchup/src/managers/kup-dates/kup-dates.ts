@@ -16,6 +16,9 @@ import {
     KupDatesNormalize,
 } from './kup-dates-declarations';
 
+import { toDate as toDateFunction } from './kup-dates-utility';
+import { dateFormat as formatFunction } from './kup-dates-utility';
+
 /**
  * Handles operations and formatting of dates.
  * @module KupDates
@@ -165,10 +168,7 @@ export class KupDates {
      * @see https://day.js.org/docs/en/display/format
      */
     format(input: dayjs.ConfigType, format?: string): string {
-        if (!format) {
-            format = 'L'; // MM/DD/YYYY, DD/MM/YYYY depending on locale
-        }
-        return dayjs(input).format(format);
+        return formatFunction(input, this.locale, format);
     }
     /**
      * Gets the time formatted
@@ -224,11 +224,7 @@ export class KupDates {
      * @returns {Date} Date object.
      */
     toDate(input: dayjs.ConfigType, format?: string): Date {
-        if (format && format != null) {
-            return dayjs(input, format).toDate();
-        } else {
-            return dayjs(input).toDate();
-        }
+        return toDateFunction(input, this.locale, format);
     }
     /**
      * Converts the input in a Dayjs object.

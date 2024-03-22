@@ -4,6 +4,13 @@ import type { KupDom } from '../kup-manager/kup-manager-declarations';
 import type { KupObj, KupObjectsJSON } from './kup-objects-declarations';
 import * as objJson from './obj.json';
 
+import { isButton as isButtonFunction } from './kup-objects-utility';
+import { isDate as isDateFunction } from './kup-objects-utility';
+import { objectIsNumber as isNumberFunction } from './kup-objects-utility';
+import { isIcon as isIconFunction } from './kup-objects-utility';
+import { isTime as isTimeFunction } from './kup-objects-utility';
+import { isTimestamp as isTimestampFunction } from './kup-objects-utility';
+
 const dom: KupDom = document.documentElement as KupDom;
 
 /**
@@ -92,8 +99,7 @@ export class KupObjects {
      * @returns {boolean} True when the object is a button.
      */
     isButton(obj: KupObj): boolean {
-        if (!obj) return false;
-        return 'J4' === obj.t && 'BTN' === obj.p;
+        return isButtonFunction(obj);
     }
     /**
      * Checks whether the object represents a chart or not.
@@ -128,8 +134,7 @@ export class KupObjects {
      * @returns {boolean} True when the object is a date.
      */
     isDate(obj: KupObj): boolean {
-        if (!obj) return false;
-        return 'D8' === obj.t;
+        return isDateFunction(obj);
     }
     /**
      * Checks whether the object represents an icon or not.
@@ -137,8 +142,7 @@ export class KupObjects {
      * @returns {boolean} True when the object is an icon.
      */
     isIcon(obj: KupObj): boolean {
-        if (!obj) return false;
-        return 'J4' === obj.t && 'ICO' === obj.p;
+        return isIconFunction(obj);
     }
     /**
      * Checks whether the object represents an image or not.
@@ -173,8 +177,7 @@ export class KupObjects {
      * @returns {boolean} True when the object is a number.
      */
     isNumber(obj: KupObj): boolean {
-        if (!obj) return false;
-        return 'NR' === obj.t || 'NP' === obj.t;
+        return isNumberFunction(obj);
     }
     /**
      * Checks whether the object represents a positive number or not.
@@ -262,8 +265,7 @@ export class KupObjects {
      * @returns {boolean} True when the object is a time.
      */
     isTime(obj: KupObj): boolean {
-        if (!obj) return false;
-        return 'I1' === obj.t || 'I2' === obj.t;
+        return isTimeFunction(obj);
     }
     /**
      * Checks whether the object represents a timestamp or not.
@@ -271,8 +273,7 @@ export class KupObjects {
      * @returns {boolean} True when the object is a timestamp.
      */
     isTimestamp(obj: KupObj): boolean {
-        if (!obj) return false;
-        return 'I3' === obj.t && '2' === obj.p;
+        return isTimestampFunction(obj);
     }
     /**
      * Checks whether the object represents a time and handles seconds or not.
