@@ -10,7 +10,7 @@ import 'dayjs/locale/ru';
 import 'dayjs/locale/zh';
 import { KupDatesLocales } from './kup-dates-declarations';
 
-export const toDate = (
+export const datesToDate = (
     input: dayjs.ConfigType,
     locale: KupDatesLocales,
     format?: string
@@ -27,7 +27,7 @@ export const toDate = (
     }
 };
 
-export const dateFormat = (
+export const datesFormat = (
     input: dayjs.ConfigType,
     locale: KupDatesLocales,
     format?: string

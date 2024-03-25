@@ -1,10 +1,3 @@
-// import numeral from 'numeral';
-// import 'numeral/locales/chs';
-// import 'numeral/locales/es';
-// import 'numeral/locales/fr';
-// import 'numeral/locales/it';
-// import 'numeral/locales/pl';
-// import 'numeral/locales/ru';
 import { KupComponent } from '../../types/GenericTypes';
 import { KupDebugCategory } from '../kup-debug/kup-debug-declarations';
 import { KupDom } from '../kup-manager/kup-manager-declarations';
@@ -16,19 +9,21 @@ import {
 } from './kup-math-declarations';
 import { customFormula, normalDistributionFormula } from './kup-math-helper';
 import { getRegExpFromString } from '../../utils/utils';
-import { numberStringToFormattedString as numberStringToFormattedStringFunction } from './kup-math-utility';
-import { numberToFormattedString as numberToFormattedStringFunction } from './kup-math-utility';
-import { numberify as numberifyFunction } from './kup-math-utility';
-import { numberifySafe as numberifySafeFunction } from './kup-math-utility';
-import { decimalSeparator as decimalSeparatorFunction } from './kup-math-utility';
-import { groupSeparator as groupSeparatorFunction } from './kup-math-utility';
-import { countDecimals as countDecimalsFunction } from './kup-math-utility';
-import { createFormatPattern as createFormatPatternFunction } from './kup-math-utility';
-import { getNumericValueSuffix as getNumericValueSuffixFunction } from './kup-math-utility';
-import { mathFormat as formatFunction } from './kup-math-utility';
-import { formattedStringToNumberString as formattedStringToNumberStringFunction } from './kup-math-utility';
-import { isStringNumber as isStringNumberFunction } from './kup-math-utility';
-import { mathIsNumber as isNumberFunction } from './kup-math-utility';
+import {
+    mathCountDecimals,
+    mathCreateFormatPattern,
+    mathDecimalSeparator,
+    mathFormat,
+    mathFormattedStringToNumberString,
+    mathGetNumericValueSuffix,
+    mathGroupSeparator,
+    mathIsNumber,
+    mathIsStringNumber,
+    mathNumberStringToFormattedString,
+    mathNumberToFormattedString,
+    mathNumberify,
+    mathNumberifySafe,
+} from './kup-math-utility';
 
 const dom: KupDom = document.documentElement as KupDom;
 
@@ -60,7 +55,6 @@ export class KupMath {
             });
         },
     };
-    // numeral: typeof numeral;
 
     /**
      * Initializes KupMath.
@@ -68,11 +62,9 @@ export class KupMath {
     constructor(locale?: KupMathLocales) {
         this.locale = locale ? locale : KupMathLocales.en;
         this.managedComponents = new Set();
-        // this.numeral = numeral;
-        // this.numeral.locale(this.locale);
     }
     /**
-     * Sets the locale of the numeral instance. The locales available must be tied to the KupDates locales.
+     * Sets the locale of the math instance. The locales available must be tied to the KupDates locales.
      * @param {KupMathLocales} locale - Numeraljs locale string.
      */
     setLocale(locale: KupMathLocales): void {
@@ -85,7 +77,6 @@ export class KupMath {
             );
         }
         this.locale = locale;
-        // this.numeral.locale(locale);
         this.managedComponents.forEach(function (comp) {
             if (comp.isConnected) {
                 comp.refresh();
@@ -147,7 +138,7 @@ export class KupMath {
         format?: string,
         inputIsLocalized?: boolean
     ): string {
-        return formatFunction(input, this.locale, format, inputIsLocalized);
+        return mathFormat(input, this.locale, format, inputIsLocalized);
     }
     /**
      * Create the pattern string for format a number
@@ -156,7 +147,7 @@ export class KupMath {
      * @returns {string} - formatter pattern
      */
     createFormatPattern(thousandPoint?: boolean, decimals?: number): string {
-        return createFormatPatternFunction(thousandPoint, decimals);
+        return mathCreateFormatPattern(thousandPoint, decimals);
     }
 
     /**
@@ -164,7 +155,7 @@ export class KupMath {
      * @returns {string} current decimal separator, by locale
      */
     decimalSeparator(): string {
-        return decimalSeparatorFunction(this.locale);
+        return mathDecimalSeparator(this.locale);
     }
 
     /**
@@ -172,7 +163,7 @@ export class KupMath {
      * @returns {string} current group separator, by locale
      */
     groupSeparator(): string {
-        return groupSeparatorFunction(this.locale);
+        return mathGroupSeparator(this.locale);
     }
 
     /**
@@ -240,7 +231,7 @@ export class KupMath {
         type?: string,
         decFmt?: string
     ): number {
-        return numberifyFunction(
+        return mathNumberify(
             input,
             this.locale,
             inputIsLocalized,
@@ -262,7 +253,7 @@ export class KupMath {
         type?: string,
         decFmt?: string
     ): number {
-        return numberifySafeFunction(
+        return mathNumberifySafe(
             input,
             this.locale,
             inputIsLocalized,
@@ -277,7 +268,7 @@ export class KupMath {
      * @returns {boolean} if input value is valid number
      */
     isNumber(value: any): boolean {
-        return isNumberFunction(value);
+        return mathIsNumber(value);
     }
 
     /**
@@ -287,7 +278,7 @@ export class KupMath {
      * @returns {boolean} true if number string in input is a valid number
      */
     isStringNumber(value: string, type: string): boolean {
-        return isStringNumberFunction(value, type, this.locale);
+        return mathIsStringNumber(value, type, this.locale);
     }
 
     /**
@@ -302,7 +293,7 @@ export class KupMath {
         type: string,
         decSeparator?: string
     ): string {
-        return formattedStringToNumberStringFunction(
+        return mathFormattedStringToNumberString(
             input,
             type,
             this.locale,
@@ -315,7 +306,7 @@ export class KupMath {
      * @returns {number} the number of decimals
      */
     countDecimals(value: number): number {
-        return countDecimalsFunction(value);
+        return mathCountDecimals(value);
     }
 
     /**
@@ -324,7 +315,7 @@ export class KupMath {
      * @returns {string} suffix for number, by type
      **/
     getNumericValueSuffix(type: string): string {
-        return getNumericValueSuffixFunction(type);
+        return mathGetNumericValueSuffix(type);
     }
 
     /**
@@ -339,12 +330,7 @@ export class KupMath {
         decimals: number,
         type: string
     ): string {
-        return numberToFormattedStringFunction(
-            input,
-            decimals,
-            type,
-            this.locale
-        );
+        return mathNumberToFormattedString(input, decimals, type, this.locale);
     }
 
     /**
@@ -361,7 +347,7 @@ export class KupMath {
         type: string,
         decSeparator?: string
     ): string {
-        return numberStringToFormattedStringFunction(
+        return mathNumberStringToFormattedString(
             input,
             decimals,
             type,

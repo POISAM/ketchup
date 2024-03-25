@@ -32,6 +32,7 @@ import {
 } from '../../f-components/f-cell/f-cell-declarations';
 import { TreeNodePath } from '../../components/kup-tree/kup-tree-declarations';
 import { ValueDisplayedValue } from '../../utils/filters/filters-declarations';
+import { dataColumnFind } from './kup-data-utility';
 
 const dom: KupDom = document.documentElement as KupDom;
 
@@ -157,7 +158,7 @@ export class KupData {
             dataset: KupDataDataset | KupDataColumn[],
             filters: Partial<KupDataColumn>
         ): KupDataColumn[] {
-            return findColumns(dataset, filters);
+            return dataColumnFind(dataset, filters);
         },
         hide(
             dataset: KupDataDataset | KupDataColumn[],

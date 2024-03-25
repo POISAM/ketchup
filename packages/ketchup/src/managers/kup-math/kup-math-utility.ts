@@ -8,15 +8,15 @@ import 'numeral/locales/ru';
 import { getRegExpFromString } from '../../utils/utils';
 import { KupMathLocales } from './kup-math-declarations';
 
-export const numberStringToFormattedString = (
+export const mathNumberStringToFormattedString = (
     input: string,
     decimals: number,
     type: string,
     locale: KupMathLocales,
     decSeparator?: string
 ): string => {
-    let value = numberToFormattedString(
-        numberifySafe(input, locale),
+    let value = mathNumberToFormattedString(
+        mathNumberifySafe(input, locale),
         decimals,
         type,
         locale
@@ -25,11 +25,11 @@ export const numberStringToFormattedString = (
     if (!decSeparator) {
         return value;
     }
-    const browserDecSeparator = decimalSeparator(locale);
+    const browserDecSeparator = mathDecimalSeparator(locale);
     if (browserDecSeparator == decSeparator) {
         return value;
     }
-    const browserGroupSeparator = groupSeparator(locale);
+    const browserGroupSeparator = mathGroupSeparator(locale);
     value = value.replace(getRegExpFromString(browserGroupSeparator, 'g'), '');
     value = value.replace(
         getRegExpFromString(browserDecSeparator, 'g'),
@@ -39,7 +39,7 @@ export const numberStringToFormattedString = (
     return value;
 };
 
-export const numberToFormattedString = (
+export const mathNumberToFormattedString = (
     input: number,
     decimals: number,
     type: string,
@@ -49,14 +49,18 @@ export const numberToFormattedString = (
         return '';
     }
     if (decimals == null || decimals == -1) {
-        decimals = countDecimals(input);
+        decimals = mathCountDecimals(input);
     }
-    let nstr = mathFormat(input, locale, createFormatPattern(true, decimals));
-    nstr = nstr + getNumericValueSuffix(type);
+    let nstr = mathFormat(
+        input,
+        locale,
+        mathCreateFormatPattern(true, decimals)
+    );
+    nstr = nstr + mathGetNumericValueSuffix(type);
     return nstr;
 };
 
-export const numberify = (
+export const mathNumberify = (
     input: string | String | number,
     locale: KupMathLocales,
     inputIsLocalized?: boolean,
@@ -65,13 +69,13 @@ export const numberify = (
 ): number => {
     if (typeof input != 'number') {
         if (type) {
-            let suffix = getNumericValueSuffix(type);
+            let suffix = mathGetNumericValueSuffix(type);
             if (suffix != '') {
                 input = input.replace(getRegExpFromString(suffix, 'g'), '');
             }
         }
         if (!decFmt) {
-            decFmt = inputIsLocalized ? decimalSeparator(locale) : '.';
+            decFmt = inputIsLocalized ? mathDecimalSeparator(locale) : '.';
         }
         const groupSeparator = decFmt == '.' ? ',' : '.';
         input = input.replace(getRegExpFromString(groupSeparator, 'g'), '');
@@ -91,7 +95,7 @@ export const numberify = (
     return n;
 };
 
-export const numberifySafe = (
+export const mathNumberifySafe = (
     input: string,
     locale: KupMathLocales,
     inputIsLocalized?: boolean,
@@ -101,24 +105,24 @@ export const numberifySafe = (
     if (!input || input == null || input.trim() == '') {
         input = '0';
     }
-    return numberify(input, locale, inputIsLocalized, type, decFmt);
+    return mathNumberify(input, locale, inputIsLocalized, type, decFmt);
 };
 
-export const decimalSeparator = (locale: KupMathLocales): string => {
+export const mathDecimalSeparator = (locale: KupMathLocales): string => {
     const numberWithGroupAndDecimalSeparator = 1000.1;
     return Intl.NumberFormat(locale)
         .formatToParts(numberWithGroupAndDecimalSeparator)
         .find((part) => part.type === 'decimal').value;
 };
 
-export const groupSeparator = (locale: KupMathLocales): string => {
+export const mathGroupSeparator = (locale: KupMathLocales): string => {
     const numberWithGroupAndDecimalSeparator = 1000.1;
     return Intl.NumberFormat(locale)
         .formatToParts(numberWithGroupAndDecimalSeparator)
         .find((part) => part.type === 'group').value;
 };
 
-export const countDecimals = (value: number): number => {
+export const mathCountDecimals = (value: number): number => {
     if (Math.floor(value) === value) return 0;
     let stringValue = value.toString().split('.')[1];
     if (stringValue) {
@@ -128,7 +132,7 @@ export const countDecimals = (value: number): number => {
     }
 };
 
-export const createFormatPattern = (
+export const mathCreateFormatPattern = (
     thousandPoint?: boolean,
     decimals?: number
 ): string => {
@@ -145,7 +149,7 @@ export const createFormatPattern = (
     return format;
 };
 
-export const getNumericValueSuffix = (type: string): string => {
+export const mathGetNumericValueSuffix = (type: string): string => {
     type = type.toUpperCase();
     let nstr = '';
     if (type == 'P') {
@@ -166,7 +170,7 @@ export const mathFormat = (
     format?: string,
     inputIsLocalized?: boolean
 ): string => {
-    const n = numberify(input, locale, inputIsLocalized);
+    const n = mathNumberify(input, locale, inputIsLocalized);
     if (!format) {
         const positiveN = Math.abs(n);
         const decimals = positiveN - Math.floor(positiveN);
@@ -182,7 +186,7 @@ export const mathFormat = (
     return _numeral(n).format(format);
 };
 
-export const formattedStringToNumberString = (
+export const mathFormattedStringToNumberString = (
     input: string,
     type: string,
     locale: KupMathLocales,
@@ -199,7 +203,7 @@ export const formattedStringToNumberString = (
         if (!input || input == null || input.trim() == '') {
             return '';
         }
-        let unf: number = numberifySafe(
+        let unf: number = mathNumberifySafe(
             input,
             locale,
             !decFmt || decFmt != '.',
@@ -222,7 +226,7 @@ export const formattedStringToNumberString = (
             input = 0;
         }
         if (decimals == null || decimals == -1) {
-            decimals = countDecimals(input);
+            decimals = mathCountDecimals(input);
         }
         let n: Number = Number(input);
         let f: Intl.NumberFormatOptions =
@@ -237,7 +241,7 @@ export const formattedStringToNumberString = (
     }
 };
 
-export const isStringNumber = (
+export const mathIsStringNumber = (
     value: string,
     type: string,
     locale: KupMathLocales
@@ -246,7 +250,7 @@ export const isStringNumber = (
         return false;
     }
 
-    let tmpStr = formattedStringToNumberString(value, type, locale);
+    let tmpStr = mathFormattedStringToNumberString(value, type, locale);
 
     if (mathIsNumber(tmpStr)) {
         return true;
